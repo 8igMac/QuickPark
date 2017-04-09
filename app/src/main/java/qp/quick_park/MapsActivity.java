@@ -1,5 +1,8 @@
 package qp.quick_park;
 
+import android.location.Criteria;
+import android.location.Location;
+import android.location.LocationManager;
 import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
 
@@ -38,11 +41,21 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
     @Override
     public void onMapReady(GoogleMap googleMap) {
         mMap = googleMap;
+        LocationManager mgr;    
+        mgr = (LocationManager)getSystemService(LOCATION_SERVICE);
 
-        // Add a marker in Sydney and move the camera
-        LatLng sydney = new LatLng(-34, 151);
-        mMap.addMarker(new MarkerOptions().position(sydney).title("Marker in Sydney"));
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(sydney,13));
+
+        // Set current location on start
+        Criteria cri = new Criteria();
+        String bbb = mgr.getBestProvider(cri, true);
+        Location myLocation = mgr.getLastKnownLocation(bbb);
+
+        double lat = myLocation.getLatitude();
+        double lon = myLocation.getLongitude();
+        LatLng ll = new LatLng(lat, lon);
+
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(ll,16));
+
 
         // Show Current Location
         UiSettings uiSettings = mMap.getUiSettings();
