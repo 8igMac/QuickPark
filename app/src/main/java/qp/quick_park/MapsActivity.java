@@ -1,10 +1,14 @@
 package qp.quick_park;
 
+import android.location.Address;
 import android.location.Criteria;
+import android.location.Geocoder;
 import android.location.Location;
 import android.location.LocationManager;
-import android.support.v4.app.FragmentActivity;
 import android.os.Bundle;
+import android.support.v4.app.FragmentActivity;
+import android.view.View;
+import android.widget.EditText;
 
 import com.google.android.gms.maps.CameraUpdateFactory;
 import com.google.android.gms.maps.GoogleMap;
@@ -13,6 +17,9 @@ import com.google.android.gms.maps.SupportMapFragment;
 import com.google.android.gms.maps.UiSettings;
 import com.google.android.gms.maps.model.LatLng;
 import com.google.android.gms.maps.model.MarkerOptions;
+
+import java.io.IOException;
+import java.util.List;
 
 public class MapsActivity extends FragmentActivity implements OnMapReadyCallback {
 
@@ -54,7 +61,7 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         double lon = myLocation.getLongitude();
         LatLng ll = new LatLng(lat, lon);
 
-        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(ll,16));
+        mMap.moveCamera(CameraUpdateFactory.newLatLngZoom(ll,14));
 
 
         // Show Current Location
@@ -62,4 +69,35 @@ public class MapsActivity extends FragmentActivity implements OnMapReadyCallback
         uiSettings.setMyLocationButtonEnabled(true);
         mMap.setMyLocationEnabled(true);
     }
+
+    // Search button method
+    public void onSearch(View view)
+    {
+        EditText location_tf = (EditText)findViewById(R.id.tf_address);
+        String location = location_tf.getText().toString();
+        List<Address> addressList = null;
+
+        if(location != null || !location.equals(""))
+        {
+            Geocoder geocoder = new Geocoder(this);
+            try {
+
+                // store address in the list
+                addressList = geocoder.getFromLocationName(location, 1);
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+
+            // get input address Lat and Lng
+            Address address = addressList.get(0);
+            LatLng latLng = new LatLng(address.getLatitude(), address.getLongitude());
+
+            // add marker
+            mMap.addMarker(new MarkerOptions().position(latLng).title("Marker"));
+            // move camera
+            mMap.animateCamera(CameraUpdateFactory.newLatLngZoom(latLng, 14));
+
+        }
+    }
+
 }
